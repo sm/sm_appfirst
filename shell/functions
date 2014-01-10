@@ -77,7 +77,7 @@ validate_statsd() {
 				true # all good
 				;;
 			(*)
-				log error "statsd_listen must be either 'TRUE' or 'FALSE'."
+				log error "statsd_listen must be either 'True' or 'False'."
 				;;
 		esac
 	fi
