@@ -5,7 +5,7 @@ then echo -e "AppFirst Collector Version $(/usr/bin/collector -v 2>&1 |  head -1
 fi
 
 if [[ -n ${collector_id} ]]
-then echo -e "CollectorID: #{CollectorID}\n"
+then echo -e "CollectorID: ${collector_id}\n"
 fi
 
 while read -r line
