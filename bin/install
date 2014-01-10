@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Fetch
+typeset url package arch
+
+url="${base_url}/${tenant_id}"
+arch=$(uname -m)
+
+if command exists rpm
+then package="appfirst-${arch}.rpm"
+elif command exists apt-get
+then package="appfirst-${arch}"
+else log fail "Neither rpm nor apt-get found."
+fi
+
+if (( profile_id > 0 ))
+then url="${url}/profiles/${profile_id}/${package}"
+else url="${url}/${package}"
+fi
+
+echo "=> Downloading..."
+if command exists curl
+then curl -Lks ${url} -o ${archives_path}/${package}
+else wget --quiet ${url} -O ${archives_path}/${package}
+fi
+
+echo "=> Installing..."
+if command exists rpm
+then sudo rpm -ihv ${archives_path}/${package}
+elif command exists deb
+then sudo dpkg -i ${archives_path}/${packag}
+else log fail "Did not find either rpm or deb package manager."
+fi
+
+echo "=> Waiting for CollectorID Assignment..."
+while [[ -z ${collector_id} ]]
+do
+	read_collector_id
+	sleep 1
+done
+echo "=> CollectorID: ${collector_id}"
+echo "=> Configuring..."
+install_templates
+
+# Post Install
+if command exists restorecon 
+then 
+	echo "=> SELinux/Restorecon..."
+	restorecon -R /usr/share/appfirst
+fi

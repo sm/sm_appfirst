@@ -1,0 +1,24 @@
+#!/bin/sh
+
+user is root || log error "AppFirst extension must be run as root"
+
+typeset -x base_url package pid_file pid tenant_id profile_id backend_url \
+	nagios_config excludes includes statsd_listen etc_path collector_id \
+	LD_LIBRARY_PATH
+
+true ${etc_path:="/etc"}
+
+LD_LIBRARY_PATH=/usr/share/appfirst 
+
+read_config
+read_pidfile
+read_tenant_id
+read_profile_id
+read_collector_id
+
+parse_args "${extension_args[@]}"
+
+validate_tenant
+validate_profile
+validate_statsd
+

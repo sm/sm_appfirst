@@ -1,0 +1,104 @@
+#!/bin/sh
+
+parse_args() {
+	local token
+	while (( $# ))
+	do
+		token=$1 ; shift
+		case "${token}" in 
+			(appfirst) true ;; # Ignore the first CLI parameter
+		  (tenant|tenant_id) tenant_id=$1 ; shift ;;
+	    (profile|profile_id) profile_id=$1 ; shift ;;
+      (backend_url) backend_url=$1 ; shift ;;
+		  (nagios_config) nagios_config=$1 ; shift ;;
+	    (includes) includes=$1 ; shift ;;
+      (excludes) excludes=$1 ; shift ;;
+		  (statsd_listen) statsd_listen=$1 ; shift ;;
+	    (*) log fail "Unknown command line argument ${token}" ;;
+    esac
+  done
+}
+
+read_tenant_id() {
+	if [[ -s ${etc_path}/AppFirst ]]
+	then tenant_id=$(awk '/Tenant/{print $2}' /etc/AppFirst)
+	fi
+}
+
+read_profile_id() {
+	if [[ -s ${etc_path}/AppFirst ]]
+	then profile_id=$(awk '/Profile/{print $2}' /etc/AppFirst)
+	fi
+}
+
+read_collector_id() {
+	if [[ -s ${etc_path}/AppFirst ]]
+	then collector_id=$(awk '/CollectorID/{print $2}' /etc/AppFirst)
+	fi
+}
+
+read_pidfile() {
+	if [[ -s ${pid_file} ]]
+	then pid=$(head -1 ${pid_file})
+	else pid=0
+	fi
+
+	[[ -n "${pid}" ]] && (( pid > 0 )) || pid=0
+}
+
+read_config() {
+	config read file defaults key pid_file from appfirst
+	config read file defaults key base_url from appfirst
+	config read file defaults key backend_url from appfirst
+	config read file defaults key nagios_config from appfirst
+	config read file defaults key data_dir from appfirst
+	config read file defaults key includes from appfirst
+	config read file defaults key excludes from appfirst
+	config read file defaults key statsd_listen from appfirst
+}
+
+validate_tenant() {
+	if [[ -z ${tenant_id} ]] || (( tenant_id < 1))
+	then 
+		log error "Unknown tenant_id, tenant_id must be a non-negative integer.
+  For Example: sm appfirst install tenant_id 1234"
+	fi
+}
+
+validate_profile() {
+	[[ -n ${profile_id} ]] || profile_id=0
+}
+
+validate_statsd() {
+	if [[ -n "${statsd_listen}" ]]
+	then
+		case ${statsd_listen} in
+			(True|False)
+				true # all good
+				;;
+			(*)
+				log error "statsd_listen must be either 'TRUE' or 'FALSE'."
+				;;
+		esac
+	fi
+}
+
+install_templates() {
+	template install appfirst/AppFirst.conf \
+		to "${etc_path}/AppFirst" \
+		mode 0644 \
+		variables \
+		tenant_id "${tenant_id}" \
+		profile_id "${profile_id}" \
+		collector_id "${collector_id}" \
+		backend_url "${backend_url}" \
+		nagios_config "${nagios_config}" \
+		data_dir "${data_dir}" \
+		includes "${includes}" \
+		excludes "${excludes}" \
+		statsd_listen "${statsd_listen}"
+
+	template install appfirst/appfirst.tags \
+		to "${etc_path}/appfirst.tags" \
+		mode 0644
+}

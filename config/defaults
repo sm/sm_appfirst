@@ -1,0 +1,8 @@
+base_url=http://wwws.appfirst.com/packages/initial
+pid_file="/var/run/afcollector.pid"
+backend_url="http://backend.appfirst.com/SaveData.py/save_data"
+nagios_config=/usr/share/appfirst/plugins/etc/nrpe_appfirst.cfg
+data_dir="/opt/AppFirst/data"
+includes=""
+excludes=""
+statsd_listen="True"
