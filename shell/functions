@@ -102,8 +102,4 @@ install_templates() {
 		to "${etc_path}/appfirst.tags" \
 		mode 0644
 
-	template install appfirst/init.d \
-		to "/etc/init.d/appfirst" \
-		mode 0755 \
-		owner root:root
 }
