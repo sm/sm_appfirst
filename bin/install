@@ -26,9 +26,9 @@ fi
 
 echo "=> Installing..."
 if command exists rpm
-then sudo rpm -ihv ${archives_path}/${package}
+then rpm -ihv ${archives_path}/${package}
 elif command exists deb
-then sudo dpkg -i ${archives_path}/${packag}
+then dpkg -i ${archives_path}/${packag}
 else log fail "Did not find either rpm or deb package manager."
 fi
 
