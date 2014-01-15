@@ -32,13 +32,15 @@ then sudo dpkg -i ${archives_path}/${packag}
 else log fail "Did not find either rpm or deb package manager."
 fi
 
-/etc/init.d/afcollector start
+if [[ -x /etc/init.d/afcollector ]]
+then /etc/init.d/afcollector restart
+fi
 
 echo "=> Waiting for CollectorID Assignment..."
 while [[ -z ${collector_id} ]]
 do
-	pid=$(ps auxww | awk '/[c]ollector/{print $2}')
-	if (( pid > 0 ))
+	pid=$(ps auxww | grep '/usr/bin/[c]ollector' | awk '{print $2}')
+	if (( ${pid:-0} > 0 ))
 	then
 		read_collector_id
 		sleep 1
