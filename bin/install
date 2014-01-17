@@ -27,8 +27,8 @@ fi
 echo "=> Installing..."
 if command exists rpm
 then rpm -ihv ${archives_path}/${package}
-elif command exists deb
-then dpkg -i ${archives_path}/${packag}
+elif command exists dpkg
+then dpkg -i ${archives_path}/${package}
 else log fail "Did not find either rpm or deb package manager."
 fi
 
